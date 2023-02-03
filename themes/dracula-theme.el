@@ -177,6 +177,27 @@ read it before opening a new issue about your will.")
                (diff-hl-change :foreground ,dracula-orange :background ,dracula-orange)
                (diff-hl-delete :foreground ,dracula-red :background ,dracula-red)
                (diff-hl-insert :foreground ,dracula-green :background ,dracula-green)
+
+               (diff-added :foreground ,dracula-current :background ,diff-bg-green)
+
+               ;; (diff-added-highlight :background "#336633"
+               ;;                       :foreground "#cceecc"
+               ;;                       :extend t)
+               (diff-removed :foreground ,dracula-current :background ,diff-bg-red)
+
+               ;; (diff-removed-highlight :background "#663333"
+               ;;                         :foreground "#eecccc"
+               ;;                         :extend t)
+
+               (set-face-background 'diff-added "green" (selected-frame))
+      ;; (set-face-background 'diff-changed "yellow" (selected-frame))
+      ;; (set-face-background 'diff-removed "red" (selected-frame))
+
+      ;; (set-face-foreground 'diff-added "black" (selected-frame))
+      ;; (set-face-foreground 'diff-changed "black" (selected-frame))
+      ;; (set-face-foreground 'diff-file-header "black" (selected-frame))
+      ;; (set-face-foreground 'diff-header "black" (selected-frame))
+      ;; (set-face-foreground 'diff-removed "black" (selected-frame))
                ;; dired
                (dired-directory :foreground ,dracula-green :weight normal)
                (dired-flagged :foreground ,dracula-pink)
