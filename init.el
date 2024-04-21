@@ -15,7 +15,7 @@
  '(custom-safe-themes
    '("f23c609d5336a9f864f66d389d6829cbad44bf56471cf82d717172ecc58af0c7" "0ab2aa38f12640ecde12e01c4221d24f034807929c1f859cbca444f7b0a98b3a" "e3b2bad7b781a968692759ad12cb6552bc39d7057762eefaf168dbe604ce3a4b" default))
  '(ediff-split-window-function 'split-window-horizontally)
- '(package-selected-packages '(flycheck cl-libify impatient-mode magit))
+ '(package-selected-packages '(verilog-ext flycheck cl-libify impatient-mode magit))
  '(verilog-align-ifelse t)
  '(verilog-auto-delete-trailing-whitespace t)
  '(verilog-case-indent 3)
@@ -50,10 +50,48 @@
 ;; Mode for OFS settings files
 (add-to-list 'auto-mode-alist '("\\.ofss\\'" . conf-mode))
 
+;; Installed packages
 ;; use melpa
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://stable.melpa.org/packages/") t)
+
+;; Verilog Extended mode
+(use-package verilog-ext
+  :hook ((verilog-mode . verilog-ext-mode))
+  :init
+  ;; Set with 'M-x RET customize-group RET verilog-ext'
+  (setq verilog-ext-feature-list
+        '(beautify
+          ;; font-lock
+          ;; xref
+          ;; capf
+          hierarchy
+          eglot
+          lsp
+          lsp-bridge
+          flycheck
+          navigation
+          ;; template
+          formatter
+          ;; compilation
+          ;; imenu
+          which-func
+          ;; hideshow
+          typedefs
+          ;; time-stamp
+          ;; block-end-comments
+          ports))
+  :config
+  (verilog-ext-mode-setup)
+  (verilog-ext-eglot-set-server 've-svls)
+  (verilog-ext-lsp-set-server 've-svls))
+
+;; Flycheck
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
 (package-initialize)
 
 (custom-set-faces
@@ -79,8 +117,3 @@
   (princ (with-current-buffer buffer
            (format "<!DOCTYPE html><html><title>Impatient Markdown</title><xmp theme=\"united\" style=\"display:none;\"> %s  </xmp><script src=\"http://ndossougbe.github.io/strapdown/dist/strapdown.js\"></script></html>" (buffer-substring-no-properties (point-min) (point-max))))
          (current-buffer)))
-
-;; Flycheck
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode))

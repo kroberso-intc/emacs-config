@@ -1,0 +1,131 @@
+# Setup ARC Environment
+if [ -f /p/psg/ctools/arc/arc.bashrc ]; then
+   . /p/psg/ctools/arc/arc.bashrc
+fi
+
+export PATH=/usr/intel/pkgs/emacs/29.2/bin:$HOME/bin:$HOME/.local/bin:/p/psg/ctools/ripgrep/13.0.0/linux64/rg:/p/psg/pac/release/main/adapt/19.3/829/linux64/bin:$PATH
+#export PATH=/p/psg/pac/release/main/adapt/19.3/700/linux64/bin/:$PATH
+
+# Use intel bin path for emacs X11 version is old
+
+function ssh_wait () {
+   if [ -z "$1" ]; then
+      echo "usage: ssh-wait [user@hostname]"
+   else
+      until ssh $1 2> /dev/null
+      do
+         sleep 5
+	 echo "Waiting for response from $1..."
+      done
+   fi
+}
+
+export -f ssh_wait
+
+
+function ipgen_cleanup()
+{
+   find . -name synth -exec rm -rf {} \;
+   find . -name aldec -exec rm -rf {} \;
+   find . -name cadence -exec rm -rf {} \;
+   find . -name xcelium -exec rm -rf {} \;
+   find . -name ncsim_files.tcl -exec rm -rf {} \;
+   find . -name riviera_files.tcl -exec rm -rf {} \;
+   find . -name xcelium_files.tcl -exec rm -rf {} \;
+   find . -name aldec_files.txt -exec rm -rf {} \;
+   find . -name cadence_files.txt -exec rm -rf {} \;
+   find . -name *_bb.v -exec rm -rf {} \;
+   find . -name *.cmp -exec rm -rf {} \;
+   find . -name *.csv -exec rm -rf {} \;
+   find . -name *.html -exec rm -rf {} \;
+   find . -name *_inst.v -exec rm -rf {} \;
+   find . -name *_inst.vhd -exec rm -rf {} \;
+   find . -name *.qgsimc -exec rm -rf {} \;
+   find . -name *.qgsynthc -exec rm -rf {} \;
+   find . -name *.rpt -exec rm -rf {} \;
+   find . -name *.qip -exec rm -rf {} \;
+   find . -name *.sopcinfo -exec rm -rf {} \;
+   find . -name *.xml -exec rm -rf {} \;
+   find . -name *.ppf -exec rm -rf {} \;
+   find . -name *.bsf -exec rm -rf {} \;   
+}
+
+
+function env()
+{
+    export ROOTDIR="$(git rev-parse --show-toplevel)"
+    # check if in a cloned/downloaded repo"
+    if [ ${?} != "0" ]; then
+        #not in git cloned repo and OFS_ROOTDIR not set: error out.
+        echo "Error: Cannot derive toplevel path from git" 1>&2
+        return 1
+    fi
+    $ROOTDIR/env_not_shipped/"$1"/env.sh
+}
+
+function setup()
+{
+    export ROOTDIR="$(git rev-parse --show-toplevel)"
+    # check if in a cloned/downloaded repo"
+    if [ ${?} != "0" ]; then
+        #not in git cloned repo and OFS_ROOTDIR not set: error out.
+        echo "Error: Cannot derive toplevel path from git" 1>&2
+	return 1
+    fi
+
+    source $ROOTDIR/env_not_shipped/"$1"/setup.sh
+}
+
+function run_sim()
+{
+    if [ ${PWD##*/unit_test/} == $PWD ]; then
+        echo "Error: ${PWD} is not a unit test directory" 1>&2
+	return 1
+    fi
+
+    if [ -z ${OFS_ROOTDIR} ]; then
+        # OFS_ROOTDIR not set: error out.
+        echo "Error: \$OFS_ROOTDIR not set" 1>&2
+	return 1 
+    fi
+    $OFS_ROOTDIR/ofs-common/scripts/common/sim/run_sim.sh TEST=${PWD##*/unit_test/}
+}
+
+function run_msim()
+{
+    if [ ${PWD##*/unit_test/} == $PWD ]; then
+        echo "Error: ${PWD} is not a unit test directory" 1>&2
+	return 1
+    fi
+
+    if [ -z ${OFS_ROOTDIR} ]; then
+        # OFS_ROOTDIR not set: error out.
+        echo "Error: \$OFS_ROOTDIR not set" 1>&2
+	return 1 
+    fi
+    $OFS_ROOTDIR/ofs-common/scripts/common/sim/run_sim.sh TEST=${PWD##*/unit_test/} MSIM=1
+}
+
+
+export -f ipgen_cleanup
+
+# show working directory
+export PS1="\W$ "
+
+# aliases
+alias ls="ls --color=auto"
+alias grep="grep --color=auto"
+alias lsacc="ls-accel-users"
+alias ion="ion --group /psg/acds/tool --memory 12 --cores 2 --resource SLES12"
+alias arcterm="arc submit -i quartus_num_procs/8 node/'[memory=32000]' -- xterm"
+alias emacs="emacs -nw"
+alias magit="emacs --eval '(progn (magit-status) (delete-other-windows))'"
+alias tclsh="rlwrap tclsh"
+
+alias arc-jobs="arc job-query user=$USER status=running"
+
+export SWUSER_WORK=/p/psg/swip/w/kroberso
+
+shopt -s direxpand
+export BUILDTOOLS_VENV_PATH="$ARC_TEMP_STORAGE/venv"
+export OFS_NIGHTLY=/p/psg/pac/release/main/ofs/main
